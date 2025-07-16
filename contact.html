@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>noto - contact</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/pics/logo.png">
+    <script src="https://kit.fontawesome.com/ffe64b8fe2.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</head>
+<body style=" background-color: #000000; overflow-x: hidden;">
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-dropdown">
+            <button class="dropdown-toggle" onclick="toggleDropdown()">contact<i class="fa-solid fa-chevron-down dropdown-icon" id="dropdown-icon"></i></button>
+            
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="home.html">home</a>
+                <a href="contact.html" class="active">contact</a>
+            </div>
+        </div>
+      </div>
+    <div class="nav-center">noto</div>
+    <div class="nav-right">
+      <button id="login-btn" onclick="login()">login</button>
+    </div>
+  </nav>
+
+    <div class="contact">
+        <div class="content">
+            <h1>Got a question, an<br>idea, or something<br>you need help with?<br>Contact me</h1>
+            <button class="email-btn" onclick="sendMail()">noto.romano.reese@gmail.com</button><br>
+            <button class="email-btn" style="font-size: 25px;" onclick="socials('youtube')"><i class="fa-brands fa-youtube"></i></button>
+            <button class="email-btn" style="font-size: 25px;" onclick="socials('instagram')"><i class="fa-brands fa-instagram social-icons"></i></button>
+            <button class="email-btn" style="font-size: 25px;" onclick="socials('x')"><i class="fa-brands fa-x-twitter social-icons"></i></button>
+        </div>
+    </div>
+</body>
+</html>

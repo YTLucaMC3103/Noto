@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Noto – New Note</title>
+  <link rel="stylesheet" href="app.css"/>
+  <link rel="icon" href="../pics/logo.png" />
+  <script src="https://kit.fontawesome.com/ffe64b8fe2.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="../firebase.js"></script>
+    <script src="note.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const pagesToggle = document.getElementById("pages-toggle");
+    const subNav = document.getElementById("sub-nav");
+
+    pagesToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      subNav.classList.toggle("active");
+    });
+  });
+
+  function autoSaveNote() {
+  saveTimeout = setTimeout(() => {
+    const title = document.getElementById("note-title").value;
+    const content = document.getElementById("note-content").value;
+
+  clearTimeout(saveTimeout);
+
+    db.collection("notes").add({
+      userId: auth.currentUser.uid,
+      title,
+      content,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      console.log("Auto-saved");
+    })
+    .catch(err => console.error("Save error:", err));
+  }, 2000); // speichert 2 Sekunden nach dem letzten Tippen
+}
+</script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="#" id="pages-toggle">pages</a>
+            <a href="#">trash</a>
+            <a href="#">feedback</a>
+            <a href="#">become part of our team</a>
+        </div>
+
+        <div class="nav-center" onclick="navigate('home')" style="cursor: pointer;">
+            <img src="/pics/logo.png" alt="">
+        </div>
+        
+        <div class="nav-right">
+            <button id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <img id="profile-img" alt="Profile" />
+            <div id="profile-menu" class="hidden">
+                <ul>
+                    <li onclick="goToProfile()">Mein Profil</li>
+                    <li onclick="logout()">Logout</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sub-nav" id="sub-nav">
+            
+        </div>
+    </nav>
+  <div class="editor">
+    <input type="text" id="note-title" placeholder="Note title..." oninput="autoSaveNote()" />
+    <textarea id="note-content" placeholder="Start writing, your work is saved automatically." oninput="autoSaveNote()"></textarea>
+    <div class="editor-actions">
+    </div>
+  </div>
+
+    <div id="snackbar"></div>
+</body>
+</html>

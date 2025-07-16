@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Forma DJR Micro';
+    src: local('Forma DJR Micro Medium'), local('Forma-DJR-Micro-Medium'),
+        url('FormaDJRMicro-Medium.woff2') format('woff2'),
+        url('FormaDJRMicro-Medium.woff') format('woff'),
+        url('FormaDJRMicro-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+  }

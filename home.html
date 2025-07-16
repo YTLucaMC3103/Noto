@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Noto - Home</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="pics/logo.png">
+  <script src="https://kit.fontawesome.com/ffe64b8fe2.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher&family=Leckerli+One&display=swap" rel="stylesheet">
+</head>
+<body>
+   <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-dropdown">
+        <button class="dropdown-toggle" onclick="toggleDropdown()">
+          contact <i class="fa-solid fa-chevron-down dropdown-icon" id="dropdown-icon"></i>
+        </button>
+        <div class="dropdown-menu" id="dropdown-menu">
+          <a href="home.html">home</a>
+          <a href="contact.html" class="active">contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-center" onclick="navigate('home')" style="cursor: pointer;"><img src="/pics/logo.png" alt=""></div>
+    <div class="nav-right">
+      <button id="login-btn" onclick="login()">login</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="scroll-container">
+
+    <!-- SECTION 1 -->
+    <section class="section first-section" id="welcome">
+      <div class="white-box">
+        <h1>Welcome to Noto</h1>
+        <p>A modern space to write, organize, and access your<br>notes designed to help you stay focused</p>
+        <button class="continue-btn">continue</button><br>
+        <img src="/pics/Home_Screenshot.png" class="preview-home" />
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section second-section" id="introduction">
+      <div class="white-full">
+        <div class="text">
+          <h1>why noto</h1>
+          <p><strong>Think it. Save it.</strong> Your ideas, <br>ready when you are.</p>
+          <p><strong>Made for you.</strong> View notes the <br>way that suits you best.</p>
+        </div>
+        <div class="img-container">
+          <img src="/pics/Home_Screenshot_2.png" alt="Noto Example" class="section-image"/>
+        </div>
+      </div>
+    </section>
+
+    <section class="section third-section" id="features">
+      <div class="white-full features-wrapper">
+        <div class="carousel">
+          <button class="arrow left"><i class="fa-solid fa-arrow-left"></i></button>
+
+          <div class="cards-track">
+            <div class="feature-card">
+              <div class="card-box"></div>
+              <h3 class="title">Access anywhere, anytime</h3>
+              <p class="desc">Noto is always with you — on any device, synced and in real-time.</p>
+            </div>
+            <div class="feature-card">
+              <div class="card-box"></div>
+              <h3 class="title">create easily new pages</h3>
+              <p class="desc">Every idea deserves a space. Create new pages instantly and give your thoughts a home.</p>
+            </div>
+            <div class="feature-card">
+              <div class="card-box"></div>
+              <h3 class="title">Built for focus</h3>
+              <p class="desc">Clean interface, no distractions. Just you and your thoughts.</p>
+            </div>
+          </div>
+
+          <button class="arrow right"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+<script>
+  const track = document.querySelector('.cards-track');
+  const cards = document.querySelectorAll('.feature-card');
+  const prevBtn = document.querySelector('.arrow.left');
+  const nextBtn = document.querySelector('.arrow.right');
+
+  let index = 0;
+  const cardWidth = cards[0].offsetWidth + 32; // 32px = gap (2rem)
+
+  prevBtn.addEventListener('click', () => {
+    if (index > 0) {
+      index--;
+      updateCarousel();
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (index < cards.length - 1) {
+      index++;
+      updateCarousel();
+    }
+  });
+
+  function updateCarousel() {
+    track.style.transform = `translateX(-${index * cardWidth}px)`;
+  }
+</script>
+</html>

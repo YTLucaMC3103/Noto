@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coming Soon</title>
+  <link rel="stylesheet" href="coming.css">
+  <link rel="icon" href="/pics/logo.png">
+  <link rel="manifest" href="../manifest.json">
+</head>
+<body>
+  <header><h1>noto</h1></header>
+
+  <section class="countdown">
+    <div class="time-block">
+      <span class="time" id="days">00</span>
+      <span class="label">Days</span>
+    </div>
+    <div class="time-block">
+      <span class="time" id="hours">00</span>
+      <span class="label">hour</span>
+    </div>
+    <div class="time-block">
+      <span class="time" id="minutes">00</span>
+      <span class="label">min</span>
+    </div>
+  </section>
+
+  <section class="coming">
+    <span class="bold-text">coming</span>
+
+    <div class="flip-container">
+      <div class="flip-card" id="flip-card">
+        <div class="flip-front" id="flip-front">00</div>
+      </div>
+    </div>
+
+    <span class="bold-text">soon</span>
+  </section>
+
+  <section class="info">
+    <p class="bold-text">we are coming soon</p>
+    <p class="light-text">Not ready yet, but getting closer every day.</p>
+  </section>
+
+  <script src="coming.js"></script>
+</body>
+</html>

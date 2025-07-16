@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noto - Login</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="icon" href="/pics/logo.png">
+    <script src="login.js"></script>
+    <script src="https://kit.fontawesome.com/ffe64b8fe2.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyAq5rxUa0QzcSS_wBVlJDV3PimrHoKAMVE",
+    authDomain: "noto-6cfb7.firebaseapp.com",
+    projectId: "noto-6cfb7",
+    storageBucket: "noto-6cfb7.firebasestorage.app",
+    messagingSenderId: "717653458967",
+    appId: "1:717653458967:web:ec9417bb70a0b34b289c52",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          const user = result.user;
+          createNoteAndRedirect(user);
+        })
+        .catch(error => {
+          console.error("Login-Fehler:", error);
+          alert("Error!");
+        });
+    }
+
+    function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          alert("Registered!");
+        })
+        .catch(error => {
+          showSnackbar(error.message)
+        });
+    }
+
+    function createNoteAndRedirect(user) {
+      const db = firebase.firestore();
+      const uid = user.uid || user._delegate?.uid;
+      const newNote = {
+        userId: uid,
+        title: "Untitled",
+        content: "",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      db.collection("notes")
+        .add(newNote)
+        .then(docRef => {
+          window.location.href = `../app/note.html?id=${docRef.id}`;
+        })
+        .catch(error => {
+          showSnackbar("Fehler beim Erstellen der Notiz: " + error.message);
+        });
+    }
+
+    function loginWithEmail() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          alert("Eingeloggt als " + userCredential.user.email);
+        })
+        .catch(error => {
+          alert("Login-Fehler: " + error.message);
+        });
+    }
+  </script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-dropdown">
+        <div class="dropdown-menu" id="dropdown-menu">
+          <a href="home.html">home</a>
+          <a href="contact.html" class="active">contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-center" onclick="navigate('home')" style="cursor: pointer;"><img src="/pics/logo.png" alt=""></div>
+    <div class="nav-right">
+      <button id="login-btn" onclick="login()">login</button>
+    </div>
+  </nav>
+
+  <div class="left">
+    <div class="head">
+      <h1>Welcome back</h1>
+      <br>
+      <p>Please enter your Details</p>
+    </div>
+
+    <button onclick="loginWithGoogle()" id="google-auth">
+      <img src="/pics/Google Icon.png" alt="">
+      Log in with Google
+    </button>
+
+    <div class="divider"><span>or</span></div>
+
+    <div class="input-group">
+      <input type="email" id="email" placeholder="Email">
+    </div>
+
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Password">
+      <i class="fa-solid fa-eye eye-icon" onclick="togglePassword('password', this)"></i>
+    </div>
+
+    <div class="options">
+      <label><input type="checkbox"> Remember Me</label>
+      <a href="#" onclick="openForgotModal()">forgot password?</a>
+    </div>
+
+    <button class="login-button" onclick="login()">Log in</button>
+
+    <p class="signup">
+      Don’t have an account? <a href="signup.html">Sign up</a>
+    </p>
+  </div>
+
+  <div id="snackbar"></div>
+
+  <div id="forgot-password-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeForgotModal()">&times;</span>
+      <h2>Forgot Password?</h2>
+      <p>Enter your email to receive a password reset link.</p>
+      <input type="email" id="reset-email" placeholder="Your email" />
+      <button onclick="sendPasswordReset()">Send Reset Link</button>
+      <p id="reset-status" class="status-message"></p>
+    </div>
+  </div>
+</body>
+</html>
