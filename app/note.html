@@ -7,42 +7,22 @@
   <link rel="stylesheet" href="app.css"/>
   <link rel="icon" href="../pics/logo.png" />
   <script src="https://kit.fontawesome.com/ffe64b8fe2.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="../firebase.js"></script>
-    <script src="note.js"></script>
-    <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const pagesToggle = document.getElementById("pages-toggle");
-    const subNav = document.getElementById("sub-nav");
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../firebase.js"></script>
+  <script src="note.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const pagesToggle = document.getElementById("pages-toggle");
+      const subNav = document.getElementById("sub-nav");
 
-    pagesToggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      subNav.classList.toggle("active");
+      pagesToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        subNav.classList.toggle("active");
+      });
     });
-  });
-
-  function autoSaveNote() {
-  saveTimeout = setTimeout(() => {
-    const title = document.getElementById("note-title").value;
-    const content = document.getElementById("note-content").value;
-
-  clearTimeout(saveTimeout);
-
-    db.collection("notes").add({
-      userId: auth.currentUser.uid,
-      title,
-      content,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      console.log("Auto-saved");
-    })
-    .catch(err => console.error("Save error:", err));
-  }, 2000); // speichert 2 Sekunden nach dem letzten Tippen
-}
-</script>
+  </script>
 </head>
 <body>
     <nav class="navbar">
@@ -69,7 +49,7 @@
         </div>
 
         <div class="sub-nav" id="sub-nav">
-            
+
         </div>
     </nav>
   <div class="editor">
@@ -79,6 +59,19 @@
     </div>
   </div>
 
-    <div id="snackbar"></div>
+  <div id="snackbar"></div>
+
+  <div id="note-modal" class="note-modal hidden">
+    <div class="note-modal-content">
+      <span id="modal-close" class="modal-close">&times;</span>
+      <h2 id="modal-title">Note Title</h2>
+      <p id="modal-created">Created: –</p>
+      <p id="modal-updated">Updated: –</p>
+      <div class="modal-actions">
+        <button id="edit-note-btn">Edit</button>
+        <button id="delete-note-btn">Delete</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

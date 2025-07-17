@@ -97,17 +97,8 @@ function getFriendlyErrorMessage(error) {
       return "An internal error occurred. Please try again.";
 
     default:
-      console.warn("Unhandled Firebase error code:", code);
+      console.warn("Unhandled Firebase error code:", code.error);
       return "An unknown error occurred. Please try again.";
-  }
-}
-
-
-function checkDomain() {
-  const isLocalhost = ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
-
-  if (isLocalhost) {
-    window.location.href = "../app/dashboard.html"
   }
 }
 

@@ -48,6 +48,12 @@ body {
   margin-left: 2rem;
 }
 
+.fa-plus {
+  color: #0056b3;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
 .sub-nav.active {
   opacity: 1;
   max-height: 3vh;
@@ -262,4 +268,37 @@ main {
   visibility: visible;
   opacity: 1;
   bottom: 50px;
+}
+
+.note-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.note-modal.hidden {
+  display: none;
+}
+
+.note-modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  cursor: pointer;
+}
+
+.modal-actions button {
+  margin: 0.5rem;
 }

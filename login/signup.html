@@ -65,9 +65,9 @@
 
         // 📩 Bestätigungs-E-Mail senden
         user.sendEmailVerification({
-          url: "https://notoweb.netlify.app/verifyComplete.html"
+          url: "https://notoweb.netlify.app/login/verifyComplete.html"
         }).then(() => {
-          window.location.href = "/link.html";
+          window.location.href = "./verifyComplete.html";
         });
 
       })
