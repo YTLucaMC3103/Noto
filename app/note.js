@@ -1,14 +1,36 @@
-let noteId = null;
-let autoSaveTimeout = null;
 let currentNoteId = null;
+let autoSaveTimeout = null;
 
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
+    // Prüfe, ob eine Note-ID in der URL steht
+    const params = new URLSearchParams(window.location.search);
+    const noteId = params.get("id");
+    if (noteId) {
+      currentNoteId = noteId;
+      loadNoteById(noteId, user);
+    }
     setupEditor(user);
+    loadUserNotes(user);
   } else {
     window.location.href = "../login/login.html";
   }
 });
+
+function loadNoteById(noteId, user) {
+  const db = firebase.firestore();
+  db.collection("notes").doc(noteId).get().then(doc => {
+    if (doc.exists && doc.data().userId === user.uid) {
+      const data = doc.data();
+      document.getElementById("note-title").value = data.title || "";
+      document.getElementById("note-content").value = data.content || "";
+    } else {
+      // Falls die Note nicht existiert oder nicht dem User gehört
+      document.getElementById("note-title").value = "";
+      document.getElementById("note-content").value = "";
+    }
+  });
+}
 
 function setupEditor(user) {
   const titleInput = document.getElementById("note-title");
@@ -19,43 +41,95 @@ function setupEditor(user) {
 }
 
 function triggerAutoSave(user) {
+  clearTimeout(autoSaveTimeout);
+  autoSaveTimeout = setTimeout(() => {
+    saveNote(user);
+  }, 2000);
+}
+
+function saveNote(user) {
   const db = firebase.firestore();
   const title = document.getElementById("note-title").value.trim();
   const content = document.getElementById("note-content").value.trim();
 
-  if (!currentNoteId) {
+  if (!currentNoteId && (title || content)) { // Nur anlegen, wenn Inhalt da ist!
     db.collection("notes").add({
       userId: user.uid,
       title: title || "Untitled",
       content: content,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(docRef => {
       currentNoteId = docRef.id;
-      addNoteLinkToSubNav(currentNoteId, title || "Untitled");
-      console.log("Note created with ID:", docRef.id);
+      addNoteLinkToSubNav(currentNoteId, title || "Untitled", user);
+      loadNoteById(currentNoteId, user); // Jetzt laden!
+      console.log("Note created:", docRef.id);
     });
-  } else {
+  } else if (currentNoteId) {
     db.collection("notes").doc(currentNoteId).update({
       title: title || "Untitled",
       content: content,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-      console.log("Note auto-saved with ID ", currentNoteId + "and title " + title + " and content " + content);
+      console.log("Note updated:", currentNoteId);
       updateNoteLinkInSubNav(currentNoteId, title || "Untitled");
     });
   }
 }
 
-function addNoteLinkToSubNav(noteId, title) {
+function autoSaveNote() {
+  clearTimeout(autoSaveTimeout);
+  autoSaveTimeout = setTimeout(() => {
+    const title = document.getElementById("note-title").value;
+    const content = document.getElementById("note-content").value;
+    const db = firebase.firestore();
+    const user = firebase.auth().currentUser;
+
+    if (!user) return;
+
+    if (currentNoteId) {
+      // Update bestehende Note
+      db.collection("notes").doc(currentNoteId).update({
+        title,
+        content,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        console.log("Auto-saved (update)");
+      })
+      .catch(err => console.error("Save error:", err));
+    } else {
+      // Neue Note anlegen
+      db.collection("notes").add({
+        userId: user.uid,
+        title,
+        content,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(docRef => {
+        currentNoteId = docRef.id;
+        console.log("Auto-saved (new)", docRef.id);
+      })
+      .catch(err => console.error("Save error:", err));
+    }
+  }, 2000); // speichert 2 Sekunden nach dem letzten Tippen
+}
+
+function addNoteLinkToSubNav(noteId, title, user) {
   const subNav = document.getElementById("sub-nav");
   const existingLink = subNav.querySelector(`a[data-id="${noteId}"]`);
 
   if (!existingLink) {
     const link = document.createElement("a");
-    link.href = `note.html?id=${noteId}`;
+    link.href = "#";
     link.textContent = title;
     link.dataset.id = noteId;
     link.style.color = "white";
+    link.onclick = (e) => {
+      e.preventDefault();
+      openNoteModal(noteId, user);
+    };
     subNav.appendChild(link);
   }
 }
@@ -67,139 +141,9 @@ function updateNoteLinkInSubNav(noteId, newTitle) {
   }
 }
 
-window.onload = function () {
-  // Lade Notizen nur, wenn der User eingeloggt ist
-  firebase.auth().onAuthStateChanged(user => {
-    const profileImg = document.getElementById("profile-img");
-
-    if (profileImg) {
-      if (user) {
-        const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`;
-        profileImg.src = photoURL;
-        profileImg.style.display = "block";
-
-        // ✅ Lade Notes erst nach erfolgreichem Login
-        loadUserNotes(user);
-      } else {
-        profileImg.style.display = "none";
-      }
-    } else {
-      console.warn("⚠️ Element #profile-img nicht im DOM gefunden.");
-    }
-
-    // Falls user nicht eingeloggt ist, trotzdem Notes-Bereich leeren
-    if (!user) {
-      const container = document.getElementById("sub-nav");
-      if (container) container.innerHTML = "<p>Please log in to see your notes.</p>";
-    }
-  });
-};
-
-function autoSaveNote() {
-  saveTimeout = setTimeout(() => {
-    const title = document.getElementById("note-title").value;
-    const content = document.getElementById("note-content").value;
-
-  clearTimeout(saveTimeout);
-
-    db.collection("notes").add({
-      userId: auth.currentUser.uid,
-      title,
-      content,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      console.log("Auto-saved");
-    })
-    .catch(err => console.error("Save error:", err));
-  }, 2000); // speichert 2 Sekunden nach dem letzten Tippen
-}
-
-function saveNote() {
-  const title = document.getElementById("note-title").value.trim();
-  const content = document.getElementById("note-content").value.trim();
-  const user = auth.currentUser;
-
-  if (!user) {
-    console.log("Kein Benutzer eingeloggt.");
-    return;
-  }
-
-  const userId = user.uid;
-
-  db.collection("notes").add({
-    userId: userId,
-    title: title,
-    content: content,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  })
-  .then(() => {
-    console.log("Note saved");
-    showSnackbar("Note saved ✅");
-  })
-  .catch((error) => {
-    console.error("Fehler beim Speichern:", error);
-    showSnackbar("Error saving note ❌");
-  });
-}
-
-function goBack() {
-  window.location.href = "dashboard.html";
-}
-
-let saveTimeout;
-
-function autoSaveNote() {
-  clearTimeout(saveTimeout);
-
-  saveTimeout = setTimeout(() => {
-    const title = document.getElementById("note-title").value;
-    const content = document.getElementById("note-content").value;
-
-    db.collection("notes").add({
-      userId: auth.currentUser.uid,
-      title,
-      content,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      console.log("Auto-saved");
-    })
-    .catch(err => console.error("Save error:", err));
-  }, 2000); // speichert 2 Sekunden nach dem letzten Tippen
-}
-
-const pagesToggle = document.getElementById("pages-toggle");
-const subNav = document.getElementById("sub-nav");
-
-pagesToggle.addEventListener("click", (e) => {
-  e.preventDefault();
-  subNav.classList.toggle("active");
-});
-
-function loadUserNotes() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const subNav = document.getElementById("sub-nav");
-  subNav.innerHTML = "";
-
-  db.collection("users").doc(user.uid).collection("notes").get().then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      const note = doc.data();
-      const link = document.createElement("a");
-      link.href = `note.html?id=${doc.id}`;
-      link.textContent = note.title;
-      subNav.appendChild(link);
-    });
-  });
-}
-
 function loadUserNotes(user) {
   const subNav = document.getElementById("sub-nav");
-  if (!subNav) return;
-
-  subNav.innerHTML = "<p style='color: white; padding: 0.5rem;'>Loading...</p>";
+  subNav.innerHTML = "<p style='color: white;'>Loading...</p>";
 
   const db = firebase.firestore();
 
@@ -211,101 +155,22 @@ function loadUserNotes(user) {
       subNav.innerHTML = "";
 
       if (snapshot.empty) {
-        const emptyMsg = document.createElement("p");
-        emptyMsg.textContent = "You don't have any notes yet.";
-        emptyMsg.style.color = "white";
-        emptyMsg.style.padding = "0.5rem";
-        subNav.appendChild(emptyMsg);
+        subNav.innerHTML = "<p style='color: white;'>You don't have any notes yet.</p>";
         return;
       }
 
       snapshot.forEach(doc => {
         const data = doc.data();
-        const noteLink = document.createElement("a");
-        noteLink.href = `note.html?id=${doc.id}`;
-        noteLink.textContent = data.title || "Untitled";
-        noteLink.style.color = "white";
-        noteLink.style.padding = "0.5rem";
-        noteLink.style.textDecoration = "none";
-        subNav.appendChild(noteLink);
+        addNoteLinkToSubNav(doc.id, data.title || "Untitled", user);
       });
     })
     .catch(error => {
       console.error("Error fetching notes:", error);
-      subNav.innerHTML = "<p style='color: white; padding: 0.5rem;'>Error loading notes.</p>";
+      subNav.innerHTML = "<p style='color: white;'>Error loading notes.</p>";
     });
 }
 
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    loadUserNotes();
-  }
-});
-
-function createNewNote(buttonEl) {
-  const user = firebase.auth().currentUser;
-  // For modular SDK, get UID from _delegate
-  const uid = user?.uid || user?._delegate?.uid;
-  if (!uid) {
-    alert("You must be logged in to create a note.");
-    window.location.href = "../login/login.html";
-    return;
-  }
-
-  const originalText = buttonEl?.textContent || "Create New Note";
-  if (buttonEl) {
-    buttonEl.disabled = true;
-    buttonEl.textContent = "Creating...";
-  }
-
-  const db = firebase.firestore();
-  const newNote = {
-    userId: uid,
-    title: "Untitled",
-    content: "",
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  db.collection("notes")
-    .add(newNote)
-    .then(docRef => {
-      window.location.href = `note.html?id=${docRef.id}`;
-    })
-    .catch(error => {
-      console.error("Error creating note:", error);
-      alert("There was an error creating the note.");
-      if (buttonEl) {
-        buttonEl.disabled = false;
-        buttonEl.textContent = originalText;
-      }
-    });
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  firebase.auth().onAuthStateChanged((user) => {
-    console.log("User: " + user)
-    if (user) {
-      loadUserNotes(user);
-    }
-  });
-});
-
-function goToProfile() {
-  console.log("Navigating to profile page");
-  window.location.href = "./profile/profile.html";
-}
-
-function setupNoteLinks(user) {
-  document.querySelectorAll("#sub-nav a").forEach(link => {
-    link.onclick = (e) => {
-      e.preventDefault();
-      const noteId = link.dataset.id;
-      openNoteModal(noteId, user);
-    };
-  });
-}
-
+// Modal Logik
 function openNoteModal(noteId, user) {
   const modal = document.getElementById("note-modal");
   modal.classList.remove("hidden");
@@ -314,9 +179,18 @@ function openNoteModal(noteId, user) {
   db.collection("notes").doc(noteId).get().then(doc => {
     if (doc.exists && doc.data().userId === user.uid) {
       const data = doc.data();
+
+      const createdAt = data.createdAt?.toDate?.() || null;
+      const updatedAt = data.updatedAt?.toDate?.() || null;
+
       document.getElementById("modal-title").textContent = data.title || "Untitled";
-      document.getElementById("modal-created").textContent = "Created: " + new Date(doc.createTime.toDate()).toLocaleString();
-      document.getElementById("modal-updated").textContent = "Updated: " + new Date(data.updatedAt?.toDate?.() || Date.now()).toLocaleString();
+      document.getElementById("modal-created").textContent = createdAt
+        ? "Created: " + new Date(createdAt).toLocaleString()
+        : "Created: Unknown";
+
+      document.getElementById("modal-updated").textContent = updatedAt
+        ? "Updated: " + new Date(updatedAt).toLocaleString()
+        : "Updated: Unknown";
 
       document.getElementById("edit-note-btn").onclick = () => {
         window.location.href = `note.html?id=${noteId}`;
@@ -324,7 +198,7 @@ function openNoteModal(noteId, user) {
 
       document.getElementById("delete-note-btn").onclick = () => {
         db.collection("notes").doc(noteId).delete().then(() => {
-          modal.classList.add("hidden");
+          document.getElementById("note-modal").classList.add("hidden");
           document.querySelector(`#sub-nav a[data-id="${noteId}"]`)?.remove();
         });
       };
@@ -334,4 +208,29 @@ function openNoteModal(noteId, user) {
   document.getElementById("modal-close").onclick = () => {
     modal.classList.add("hidden");
   };
+}
+
+function goToProfile() {
+  console.log("Navigating to profile...");
+  window.location.href = "../profile/profile.html";
+}
+
+function copyEmailToClipboard() {
+  const email = "noto.by.romano@gmail.com";
+  navigator.clipboard.writeText(email).then(() => {
+    console.log("Email copied to clipboard:", email);
+    showSnackbar("Email copied to clipboard!");
+  }).catch(err => {
+    console.error("Error copying email:", err);
+  });
+}
+
+function showSnackbar(message) {
+  const snackbar = document.getElementById("snackbar");
+  snackbar.textContent = message;
+  snackbar.className = "show";
+  
+  setTimeout(() => {
+    snackbar.className = snackbar.className.replace("show", "");
+  }, 3000); // Anzeigezeit: 3 Sekunden
 }

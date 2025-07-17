@@ -6,6 +6,25 @@
   <title>Noto - Verify Email</title>
   <link rel="stylesheet" href="login.css">
   <link rel="icon" href="/pics/logo.png">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="../firebase.js"></script>
+  <script>
+    // Prüft alle 3 Sekunden, ob die E-Mail verifiziert ist
+    setInterval(() => {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        user.reload().then(() => {
+          if (user.emailVerified) {
+            document.getElementById("status").textContent = "Email verified! Redirecting…";
+            setTimeout(() => {
+              window.location.href = "../app/note.html";
+            }, 1500);
+          }
+        });
+      }
+    }, 1500);
+  </script>
 </head>
 <body>
   <div class="left" style="height: 20vh; margin-top: 40vh;">

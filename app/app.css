@@ -8,12 +8,27 @@ body {
     max-width: 100vw;
 }
 
+@keyframes rotate-shake {
+  0%   { transform: rotate(0deg); }
+  10%  { transform: rotate(-4deg); }
+  20%  { transform: rotate(4deg); }
+  30%  { transform: rotate(-4deg); }
+  40%  { transform: rotate(4deg); }
+  50%  { transform: rotate(-4deg); }
+  60%  { transform: rotate(4deg); }
+  70%  { transform: rotate(-4deg); }
+  80%  { transform: rotate(4deg); }
+  90%  { transform: rotate(-4deg); }
+  100% { transform: rotate(0deg); }
+}
+
 .navbar {
     background-color: #272727;
     max-width: 100vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    overflow: visible;
     position: relative;
     z-index: 9000;
     padding: 1rem 2rem;
@@ -257,7 +272,7 @@ main {
   left: 50%;
   bottom: 30px;
   transform: translateX(-50%);
-  z-index: 999;
+  z-index: 9999;
   font-size: 0.95rem;
   box-shadow: 0 6px 10px rgba(0,0,0,0.2);
   opacity: 0;
@@ -285,10 +300,10 @@ main {
 }
 
 .note-modal-content {
-  background: white;
+  background: #2B2B2B;
   padding: 2rem;
+  color: white;
   border-radius: 8px;
-  max-width: 400px;
   text-align: center;
 }
 
@@ -297,8 +312,110 @@ main {
   right: 20px;
   top: 20px;
   cursor: pointer;
+  color: white;
 }
 
 .modal-actions button {
-  margin: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  height: 3vh;
+  border: none;
+  border-radius: 8px;
+}
+
+#edit-note-btn {
+  background-color: yellow;
+  color: black;
+  font-size: larger;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#edit-note-btn:hover {
+  transform: scale(1.05);
+}
+
+#delete-note-btn {
+  background-color: red;
+  font-size: larger;
+  color: white;
+  cursor: pointer;
+  transition: animation 0.5s;
+}
+
+#delete-note-btn:hover {
+  animation: rotate-shake 0.5s ease-in-out;
+}
+
+.feedback-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.feedback-modal.hidden {
+  display: none;
+}
+
+.feedback-modal-content {
+  background: #2B2B2B;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#modal-close {
+  right: 20px;
+  top: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+.email-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  width: 100%;
+  background-color: #262626;
+  height: 2rem;
+  border-radius: 8px;
+}
+
+.email-container i {
+  cursor: pointer;
+  color: white;
+  font-size: 1.2rem;
+}
+
+#email-address {
+  margin-left: 1rem;
+  color: white;
+}
+
+.profile-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.profile-modal.hidden {
+  display: none;
+}
+
+.profile-modal-content {
+  background: #2B2B2B;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
 }

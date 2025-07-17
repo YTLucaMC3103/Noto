@@ -15,11 +15,57 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const pagesToggle = document.getElementById("pages-toggle");
+      const feedbackToggle = document.getElementById("feedback-toggle");
+      const feedbackModal = document.getElementById("feedback-modal");
+      const modalClose = document.getElementById("modal-close");
       const subNav = document.getElementById("sub-nav");
+      const profileToggle = document.getElementById("profile-toggle");
+      const profileModal = document.getElementById("profile-modal");
 
       pagesToggle.addEventListener("click", (e) => {
         e.preventDefault();
         subNav.classList.toggle("active");
+      });
+
+      modalClose.addEventListener("click", (e) => {
+        e.preventDefault();
+        feedbackModal.classList.add("hidden");
+        profileModal.classList.add("hidden");
+      });
+
+      feedbackToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        feedbackModal.classList.toggle("hidden");
+      });
+
+      profileToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        profileModal.classList.toggle("hidden");
+      });
+
+      firebase.auth().onAuthStateChanged(user => {
+        const profileImg = document.getElementById("profile-img");
+
+        if (profileImg) {
+          if (user) {
+            const photoURL = user.photoURL || "https://ui-avatars.com/api/?name=User&background=random";
+            profileImg.src = photoURL;
+            profileImg.style.display = "block";
+
+            // ✅ Lade Notes erst nach erfolgreichem Login
+            loadUserNotes(user);
+          } else {
+            profileImg.style.display = "none";
+          }
+        } else {
+          console.warn("⚠️ Element #profile-img nicht im DOM gefunden.");
+        }
+
+        // Falls user nicht eingeloggt ist, trotzdem Notes-Bereich leeren
+        if (!user) {
+          const container = document.getElementById("notes-container");
+          if (container) container.innerHTML = "<p>Please log in to see your notes.</p>";
+        }
       });
     });
   </script>
@@ -29,7 +75,7 @@
         <div class="nav-left">
             <a href="#" id="pages-toggle">pages</a>
             <a href="#">trash</a>
-            <a href="#">feedback</a>
+            <a href="#" id="feedback-toggle">feedback</a>
             <a href="#">become part of our team</a>
         </div>
 
@@ -42,7 +88,7 @@
             <img id="profile-img" alt="Profile" />
             <div id="profile-menu" class="hidden">
                 <ul>
-                    <li onclick="goToProfile()">Mein Profil</li>
+                    <li id="profile-toggle">Mein Profil</li>
                     <li onclick="logout()">Logout</li>
                 </ul>
             </div>
@@ -63,15 +109,35 @@
 
   <div id="note-modal" class="note-modal hidden">
     <div class="note-modal-content">
-      <span id="modal-close" class="modal-close">&times;</span>
+      <span id="modal-close" class="modal-close"><i class="fa-solid fa-x"></i></span>
       <h2 id="modal-title">Note Title</h2>
       <p id="modal-created">Created: –</p>
       <p id="modal-updated">Updated: –</p>
       <div class="modal-actions">
-        <button id="edit-note-btn">Edit</button>
-        <button id="delete-note-btn">Delete</button>
+        <button id="edit-note-btn"><i class="fa-solid fa-pencil"></i> Edit</button>
+        <button id="delete-note-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>
       </div>
     </div>
   </div>
+
+  <div id="feedback-modal" class="feedback-modal hidden">
+    <div class="feedback-modal-content">
+      <span id="modal-close"><i class="fa-solid fa-x"></i></span>
+      <h1 id="modal-title">Feedback</h1>
+      <p>Your feedback is important to us!</p>
+      <p>If you have some feedback, <strong>please let us know!</strong></p>
+      <div class="email-container">
+        <i onclick="copyEmailToClipboard()" class="fa-solid fa-copy"></i>
+        <span id="email-address">noto.by.romano@gmail.com</span>
+      </div>
+    </div>
+  </div>
+  
+  <div id="profile-modal" class="profile-modal hidden">
+    <div class="profile-modal-content">
+      <span id="modal-close"><i class="fa-solid fa-x"></i></span>
+    </div>
+  </div>
+
 </body>
 </html>
