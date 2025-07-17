@@ -16,11 +16,15 @@
     document.addEventListener("DOMContentLoaded", () => {
       const pagesToggle = document.getElementById("pages-toggle");
       const feedbackToggle = document.getElementById("feedback-toggle");
+      const applyToggle = document.getElementById("apply-toggle");
+      const applyModal = document.getElementById("apply-modal");
       const feedbackModal = document.getElementById("feedback-modal");
       const modalClose = document.getElementById("modal-close");
       const subNav = document.getElementById("sub-nav");
       const profileToggle = document.getElementById("profile-toggle");
       const profileModal = document.getElementById("profile-modal");
+      const trashToggle = document.getElementById("trash-toggle");
+      const trashModal = document.getElementById("trash-modal");
 
       pagesToggle.addEventListener("click", (e) => {
         e.preventDefault();
@@ -29,8 +33,7 @@
 
       modalClose.addEventListener("click", (e) => {
         e.preventDefault();
-        feedbackModal.classList.add("hidden");
-        profileModal.classList.add("hidden");
+        feedbackModal.classList.add("active");
       });
 
       feedbackToggle.addEventListener("click", (e) => {
@@ -41,6 +44,16 @@
       profileToggle.addEventListener("click", (e) => {
         e.preventDefault();
         profileModal.classList.toggle("hidden");
+      });
+
+      applyToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        applyModal.classList.toggle("hidden");
+      });
+
+      trashToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        trashModal.classList.toggle("hidden");
       });
 
       firebase.auth().onAuthStateChanged(user => {
@@ -74,9 +87,9 @@
     <nav class="navbar">
         <div class="nav-left">
             <a href="#" id="pages-toggle">pages</a>
-            <a href="#">trash</a>
+            <a href="#" id="trash-toggle">trash</a>
             <a href="#" id="feedback-toggle">feedback</a>
-            <a href="#">become part of our team</a>
+            <a href="#" id="apply-toggle">become part of our team</a>
         </div>
 
         <div class="nav-center" onclick="navigate('home')" style="cursor: pointer;">
@@ -122,7 +135,6 @@
 
   <div id="feedback-modal" class="feedback-modal hidden">
     <div class="feedback-modal-content">
-      <span id="modal-close"><i class="fa-solid fa-x"></i></span>
       <h1 id="modal-title">Feedback</h1>
       <p>Your feedback is important to us!</p>
       <p>If you have some feedback, <strong>please let us know!</strong></p>
@@ -132,10 +144,34 @@
       </div>
     </div>
   </div>
+
+  <div id="apply-modal" class="apply-modal hidden">
+    <div class="apply-modal-content">
+      <h1 id="modal-title">become part of our team</h1>
+      <p>Do you wanna become part of our team?</p>
+      <p>We are searching for talented individuals to join us.</p>
+      <p>If you are interested, please reach out to us via email.</p>
+      <p>Just write "<strong>Application for a new part of the team</strong>" in the header.</p>
+      <div class="email-container">
+        <i onclick="copyEmailToClipboard()" class="fa-solid fa-copy"></i>
+        <span id="email-address">noto.by.romano@gmail.com</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="trash-modal" class="trash-modal hidden">
+    <div class="trash-modal-content">
+      <h1 id="modal-title">Trash</h1>
+      <p>Your deleted notes will appear here. They'll be permanently deleted after 30 days.</p>
+      <div class="trash-notes-container">
+        <p id="trash-empty-message">Your trash is empty.</p>
+        <div id="trash-notes-list"></div>
+      </div>
+    </div>
+  </div>
   
   <div id="profile-modal" class="profile-modal hidden">
     <div class="profile-modal-content">
-      <span id="modal-close"><i class="fa-solid fa-x"></i></span>
     </div>
   </div>
 

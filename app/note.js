@@ -155,7 +155,7 @@ function loadUserNotes(user) {
       subNav.innerHTML = "";
 
       if (snapshot.empty) {
-        subNav.innerHTML = "<p style='color: white;'>You don't have any notes yet.</p>";
+        subNav.innerHTML = "<a style='color: white; text-decoration: none;' href='#'>You don't have any notes yet.</a>";
         return;
       }
 
@@ -197,10 +197,7 @@ function openNoteModal(noteId, user) {
       };
 
       document.getElementById("delete-note-btn").onclick = () => {
-        db.collection("notes").doc(noteId).delete().then(() => {
-          document.getElementById("note-modal").classList.add("hidden");
-          document.querySelector(`#sub-nav a[data-id="${noteId}"]`)?.remove();
-        });
+        moveNoteToTrash(noteId, user);
       };
     }
   });
@@ -234,3 +231,83 @@ function showSnackbar(message) {
     snackbar.className = snackbar.className.replace("show", "");
   }, 3000); // Anzeigezeit: 3 Sekunden
 }
+
+function moveNoteToTrash(noteId, user) {
+  const db = firebase.firestore();
+  db.collection("notes").doc(noteId).update({
+    trashed: true,
+    trashedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    document.getElementById("note-modal").classList.add("hidden");
+    document.querySelector(`#subNav a[data-id="${noteId}"]`)?.remove();
+    showSnackbar("Note moved to trash!");
+    loadTrashNotes(user);
+  });
+}
+
+function loadTrashNotes(user) {
+  const trashList = document.getElementById("trash-notes-list");
+  const trashEmptyMsg = document.getElementById("trash-empty-message");
+  trashList.innerHTML = "";
+  trashEmptyMsg.style.display = "none";
+
+  const db = firebase.firestore();
+  db.collection("notes")
+    .where("userId", "==", user.uid)
+    .where("trashed", "==", true)
+    .orderBy("trashedAt", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        trashEmptyMsg.style.display = "block";
+        return;
+      }
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const noteDiv = document.createElement("div");
+        noteDiv.className = "trash-note-card";
+        noteDiv.innerHTML = `
+          <h3>${data.title || "Untitled"}</h3>
+          <p class="timestamp">${data.trashedAt?.toDate ? new Date(data.trashedAt.toDate()).toLocaleString() : ""}</p>
+          <button class="restore-btn">Restore</button>
+          <button class="delete-btn">Delete permanently</button>
+        `;
+        // Restore
+        noteDiv.querySelector(".restore-btn").onclick = () => {
+          db.collection("notes").doc(doc.id).update({
+            trashed: false,
+            trashedAt: null
+          }).then(() => {
+            showSnackbar("Note restored!");
+            loadTrashNotes(user);
+            loadUserNotes(user);
+          });
+        };
+        // Delete permanently
+        noteDiv.querySelector(".delete-btn").onclick = () => {
+          if (confirm("Delete this note permanently?")) {
+            db.collection("notes").doc(doc.id).delete().then(() => {
+              showSnackbar("Note deleted permanently!");
+              loadTrashNotes(user);
+            });
+          }
+        };
+        trashList.appendChild(noteDiv);
+      });
+    });
+}
+
+// Trash-Modal laden, wenn geöffnet:
+document.addEventListener("DOMContentLoaded", () => {
+  const trashToggle = document.getElementById("trash-toggle");
+  const trashModal = document.getElementById("trash-modal");
+  firebase.auth().onAuthStateChanged(user => {
+    trashToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      trashModal.classList.toggle("hidden");
+      if (!trashModal.classList.contains("hidden")) {
+        loadTrashNotes(user);
+      }
+    });
+  });
+});

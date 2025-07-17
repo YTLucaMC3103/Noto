@@ -419,3 +419,99 @@ main {
   border-radius: 8px;
   text-align: center;
 }
+
+.apply-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.apply-modal.hidden {
+  display: none;
+}
+
+.apply-modal-content {
+  background: #2B2B2B;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.trash-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.trash-modal.hidden {
+  display: none;
+}
+
+.trash-modal-content {
+  background: #2B2B2B;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.trash-note-card {
+  background: #232323;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trash-note-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ff3b3b;
+}
+
+.trash-note-card .timestamp {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.trash-note-card .restore-btn,
+.trash-note-card .delete-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.trash-note-card .restore-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+.trash-note-card .restore-btn:hover {
+  background: #0056b3;
+}
+
+.trash-note-card .delete-btn {
+  background: #c33;
+  color: #fff;
+}
+
+.trash-note-card .delete-btn:hover {
+  background: #a00;
+}

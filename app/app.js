@@ -59,7 +59,7 @@ function loadUserNotes(user) {
 
       if (snapshot.empty) {
         container.innerHTML = `
-          <p>You don't have any notes yet.</p>
+          <a>You don't have any notes yet.</a>
           <button onclick="createNewNote(this)" class="create-note-btn">Create your first note</button>
         `;
         return;
